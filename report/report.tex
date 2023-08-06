@@ -1,0 +1,165 @@
+% PREAMBLE
+\documentclass[a4paper, 12pt, oneside]{article}
+\linespread{1.5} %space between lines
+
+\pagestyle{plain}
+
+\usepackage{geometry} %margins
+\geometry{a4paper, top=3cm, bottom=3cm, left=3cm, right=3cm, bindingoffset=5mm}
+
+
+\usepackage{multicol} % multi columns
+\usepackage{ragged2e} % text alignment
+\usepackage{lmodern} % use modern font style
+
+\usepackage{listings}
+\lstset{frame=tb, % listings config, this can be changed in the document body as well
+  language=bash,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{SpringGreen},
+  keywordstyle=\color{NavyBlue},
+  commentstyle=\color{gray},
+  stringstyle=\color{Orange},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3,
+  captionpos=b
+}
+
+\usepackage{amsmath}
+\usepackage[english]{babel} % main language
+\usepackage{csquotes}
+\usepackage[labelfont=bf]{caption}
+\usepackage[backend=biber, style=nature]{biblatex} % bibliography
+\addbibresource{custom_bibliography.bib}
+\addbibresource{Thesis.bib}
+
+\usepackage{comment}
+\usepackage{xpatch}
+\usepackage{blindtext}
+
+\makeatletter
+
+\xpatchcmd{\@makeschapterhead}{%
+  \Huge\bfseries  #1\par\nobreak%
+}{%
+  \Huge \bfseries\centering #1\par\nobreak%
+}{\typeout{Patched makeschapterhead}}{\typeout{patching of @makeschapterhead failed}}
+
+
+\xpatchcmd{\@makechapterhead}{%
+  \huge\bfseries \@chapapp\space \thechapter
+}{%
+  \huge\bfseries\centering \@chapapp\space \thechapter
+}{\typeout{Patched @makechapterhead}}{\typeout{Patching of @makechapterhead failed}}
+
+\makeatother
+
+\usepackage{fancyhdr}
+\usepackage[export]{adjustbox}
+
+\usepackage{hyperref} % hyperlink
+\hypersetup{
+    colorlinks=true,
+    citecolor=teal,
+    linkcolor=black,
+    urlcolor=black,
+    pdftitle=Master Thesis,
+    pdfauthor=Mattia Toninelli,
+    }
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[table,xcdraw,dvipsnames]{xcolor}
+\usepackage{graphicx}
+\graphicspath{ {./figures/} }
+
+\usepackage{lscape}
+\usepackage{float}
+\usepackage{wrapfig}
+% PREAMBLE END
+
+%DOCUMENT START
+\begin{document}
+\begin{titlepage} % change \vspace{} values for the desired results
+
+  \begin{center}
+    \includegraphics{logo/logo.jpg}\par
+    \vspace{1cm}
+    {\scshape\large GPU Computing Project\par}
+    \vspace{4cm}
+    {\scshape\large\bfseries Aligned and choalescent parallel sorting on Nvidia GPUs\par}
+    \vspace{4cm}
+  \end{center}
+
+  \begin{center}
+    \scshape\normalsize\textbf{Author:}\\Manuele Lucchi\\08659A \par
+  \end{center}
+
+  \vfill
+
+  % Bottom of the page
+  {\begin{center}
+      \scshape\large Academic Year 2022/2023
+    \end{center}}
+
+\end{titlepage}
+
+\section{Abstract}
+This documents describe the performances of an existing algorithm, the Warp Sort, with some additional optimizations on more recent GPUs, comparing it with a serial approach and focusing on the implementation.
+
+\tableofcontents
+
+\section{Introduction}
+The article "High Performance Comparison-Based Sorting Algorithm on Many-Core GPUs" introduces an enhanced version of the Bitonic Sort, another algorithm that allows for parallel sorting and is therefore well suited for GPUs.\\
+The Bitonic Sort is based on the ability to easily sort Bitonic Sequences, partially ordinated sequences that can be split in two ordinated sequences with different direction.
+The new algorithm called Warp sort has been designed around the CUDA architecture, therefore using all the concepts of Nvidia GPU's to optimize the execution.\\
+The original implementation (as well as this one) is composed by 4 steps and each step is meant to perform each operation "by a warp".
+A warp is a CUDA concept of a block of 32 threads that runs the same instruction at the same time and is the minimun execution unit of the GPU.\\
+To obtain the best throughput, the access on the memory by the threads in a warp must be \textbf{aligned} and \textbf{choalescent}, meaning respectively that the first address of the transaction is an even multiple of the granularity of the used cache and that all the 32 threads of the warp access to a continuous memory block.\\
+Therefore executing all the steps "by a warp" allows for the previously detailed properties to be obtained automatically.
+
+\section{Algorithm}
+
+The algorithm follows the Bitonic Sort scheme, where the first part is about creating Bitonic Sequences and sort them using the Bitonic Merge.\\
+But, since the algorithm should be able to sort sequences of arbitrary size and a warp has a fixed size, to maintain the parallelization meaningful there are some extra steps.
+
+REQUISITI DI LUNGHEZZA
+\subsection{Step 1: Bitonic Sort}
+The first step splits the input sequence logically into chunks of 128 elements, each of one being sorted by its own warp using a standard Bitonic sort.\\
+For each chunk, there are 8 phases each with k-1 stages, where k is the current phase. For each stage, each thread of the warp performs 2 comparison, one ascending and one descending, for a total of 4 elements per thread.
+Using the \textbf{max()} and \textbf{min()} CUDA instructions, the comparisons are done without any need for conditions, ence avoiding the \textbf{warp divergence}.
+// SHARED MEMORY
+
+\subsection{Step 2: Bitonic Merge}
+After the first step, the data is now a group of ordinated subsequences that needs to be merged and again, by a warp.\\
+Given two ordinated sequences of length \textit{t} and a block of shared memory of length \textit{t}, for each warp the merge will follow this scheme:
+\begin{enumerate}
+  \item The first half of each sequence will be copied as the first \textit{t/2} and the last \textit{t/2} elements of the shared memory block (the first one will be reversed to obtain a bitonic sequence). It's worth notice that the first half is reversed while reading it from the global memory to allow a parallel access on the shared memory.
+  \item At this point the data on the shared memory is sorted by a warp similarly to the last phase of step 1. The first half of the sorted sequence is then the new first quarter of the merged sequence.
+  \item The \textit{(t/2)-1th} elements of the starting sequences are then compared to choose from which one the second half will be loaded (again, in reverse order), the smallest will be chosen and the merge sort will be performed, with again the first half now stored in the shared memory being the second quarter of the output sequence.
+  \item Finally the remaining half of the sequence net yet used will be merged with the half still in the shared memory, completing the output sequence.
+\end{enumerate}
+
+\subsection{Step 3: Split}
+
+\subsection{Step 4: Final Merge}
+
+\section{Implementation}
+
+\section{Evaluation}
+
+\section{Conclusion}
+
+\printbibliography
+
+\end{document}
+
+
+
+
