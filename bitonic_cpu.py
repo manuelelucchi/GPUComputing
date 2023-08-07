@@ -29,3 +29,19 @@ def _bitonic_sort(data, low, n, direction):
 
 def bitonic_sort(data, n, direction):
     _bitonic_sort(data, 0, n, direction)
+
+
+def bitonic_sort_iter(data, n, direction):
+    k = 2
+    while k <= n:
+        j = k // 2
+        while j > 0:
+            for i in range(0, n):
+                l = i ^ j
+                if l > i:
+                    if (i ^ k == 0 and data[i] > data[l]) or (
+                        i ^ k != 0 and data[i] < data[l]
+                    ):
+                        data[i], data[l] = data[l], data[i]
+            j //= 2
+        k *= 2
