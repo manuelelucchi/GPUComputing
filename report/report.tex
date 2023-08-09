@@ -116,7 +116,7 @@ This documents describe the performances of an existing algorithm, the Bitonic S
 
 
 \section{Introduction}
-The Bitonic Mergesort \cite{bitonic} is an algorithm created in ANNO by Ken Batcher. The elements to choose for the comparison are indipendent from the value (it's not data-dependant) therefore is well suited for parallel processing.\\
+The Bitonic Mergesort \cite{bitonic} is an algorithm created in ANNO by Ken Batcher \cite{ken}. The elements to choose for the comparison are indipendent from the value (it's not data-dependant) therefore is well suited for parallel processing.\\
 
 
 \section{Algorithm}
@@ -124,6 +124,8 @@ The Bitonic Mergesort \cite{bitonic} is an algorithm created in ANNO by Ken Batc
 The algorithm is based on the concept of Bitonic Sequence \cite{bitonic}, a sequence with $x_0 \leq ... \leq x_k \geq x ... \geq x_{n-1}$ for some $k$, $0 \leq k \le n$, meaning that there are two subsequences sorted in opposite directions.\\
 By using a sorting network, we can create a Bitonic Sequence from any sequence and then merging them to obtain the final sorted sequence, so the algorithm has two phases.\\
 This algorithm has an asymptotic complexity of $O(nlog(n)^2)$, the same of the odd-even mergesort \cite{oddeven} and shellsort \cite{shellsort}
+
+% NUMERO DI FASI ETC
 
 \subsection{Step 1: Bitonic Sort}
 
@@ -137,11 +139,13 @@ The last step is a variation of the first one, where we only have a single biton
   \includegraphics{images/bitonic.png}
 \end{center}
 
-\subsection{Sequences of length not power of 2}
-
 % versione non potenza di 2 https://hwlang.de/algorithmen/sortieren/bitonic/oddn.htm
 
 \section{Implementation}
+
+% jit tempi compilazione funzione
+
+\subsection{Sequences of length not power of 2}
 
 \section{Benchmark and Profiling}
 
@@ -152,6 +156,17 @@ The last step is a variation of the first one, where we only have a single biton
     \hline
     10            & 10 ms                  & 10 ms                  & 10 ms        \\
     10            & 10 ms                  & 10 ms                  & 10 ms        \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\begin{center}
+  \begin{tabular}{ |c|c|c|c| }
+    \hline
+    \textbf{Size} & \textbf{Cuda C++} & \textbf{Python Numba} \\
+    \hline
+    10            & 10 ms             & 10 ms                 \\
+    10            & 10 ms             & 10 ms                 \\
     \hline
   \end{tabular}
 \end{center}

@@ -1,13 +1,9 @@
 import numpy as np
+from utils import compare_and_swap
 
 
 def generate(n):
     return np.random.random(n)
-
-
-def compare_and_swap(data, i, j, direction):
-    if direction == (data[i] > data[j]):
-        data[i], data[j] = data[j], data[i]
 
 
 def bitonic_merge(data, low, n, direction):
@@ -22,8 +18,8 @@ def bitonic_merge(data, low, n, direction):
 def _bitonic_sort(data, low, n, direction):
     if n > 1:
         k = n // 2
-        _bitonic_sort(data, low, k, 1)
-        _bitonic_sort(data, low + k, k, 0)
+        _bitonic_sort(data, low, k, not direction)
+        _bitonic_sort(data, low + k, k, direction)
         bitonic_merge(data, low, n, direction)
 
 
@@ -39,9 +35,9 @@ def bitonic_sort_iter(data, n, direction):
             for i in range(0, n):
                 l = i ^ j
                 if l > i:
-                    if (i ^ k == 0 and data[i] > data[l]) or (
-                        i ^ k != 0 and data[i] < data[l]
-                    ):
-                        data[i], data[l] = data[l], data[i]
+                    if i & k == 0:
+                        compare_and_swap(data, i, l, direction)
+                    if i & k != 0:
+                        compare_and_swap(data, l, i, direction)
             j //= 2
         k *= 2
