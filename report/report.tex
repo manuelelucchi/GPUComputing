@@ -110,14 +110,18 @@
 \end{titlepage}
 
 \section{Abstract}
-This documents describe the performances of an existing algorithm, the Bitonic Sort, implemented using Python and Numba, comparing it with a serial approach.
+This documents describe the performances of an existing algorithm, the Bitonic Sort, implemented using Python and Numba, comparing it with a serial approach and CUDA C implementation.
 
 \tableofcontents
 
 
 \section{Introduction}
-The Bitonic Mergesort \cite{bitonic} is an algorithm created in ANNO by Ken Batcher \cite{ken}. The elements to choose for the comparison are indipendent from the value (it's not data-dependant) therefore is well suited for parallel processing.\\
-
+The Bitonic Mergesort \cite{bitonic} is an algorithm created in 1968 by Ken Batcher \cite{ken}. The elements to choose for the comparison are indipendent from the value (it's not data-dependant) therefore is well suited for parallel processing.\\
+Over the years there are been many implementations using low level languages such as C and even high level such as Java or Python, but regarding the parallel variant, only C/C++ examples can be found on the web (using OpenMP \cite{openmp} and CUDA C \cite{cudac})
+The CUDA community developed an abstraction layer over the CUDA runtime to be able to execute CUDA kernels from python with little-to-no overhead using Numba \cite{numba}.\\
+Numba is not a CUDA specific framework, it's a generic parallelization abstraction that allows to compile Python functions into machine code, while integrating with numpy \cite{numpy} to have access to a powerful tensor manipulation library;
+but of course its primary target is CUDA.\\
+The scope of the paper is to implement the algorithm using Numba and compare it with different implementations
 
 \section{Algorithm}
 
@@ -143,6 +147,8 @@ The last step is a variation of the first one, where we only have a single biton
 % versione non potenza di 2 https://hwlang.de/algorithmen/sortieren/bitonic/oddn.htm
 
 \section{Implementation}
+
+The scope of the implementation is to use Numba
 
 % jit tempi compilazione funzione
 
