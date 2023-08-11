@@ -14,10 +14,10 @@ def test_gpu(n, direction):
 
     start = time()
     bitonic_gpu.bitonic_sort(data_gpu, n, direction)
-    end = time()
 
     print("Sorted data")
     print(data_gpu.copy_to_host())
+    end = time()
     print(f"Time {end - start}")
 
 
@@ -51,9 +51,9 @@ def test_cpu_iter(n, direction):
     print(f"Time {end - start}")
 
 
-n = 2**16
+n = 2**28
 direction = 0
 
-test_cpu_rec(n, direction)
-test_cpu_iter(n, direction)
+# test_cpu_rec(n, direction)
+# test_cpu_iter(n, direction)
 test_gpu(n, direction)

@@ -1,39 +1,41 @@
 import bitonic_cpu
 import bitonic_gpu
-from time import time
+import time
 
 
 def cpu(n):
     data = bitonic_cpu.generate(n)
 
-    start = time()
+    start = time.perf_counter()
     bitonic_cpu.bitonic_sort(data, n, 0)
-    end = time()
+    end = time.perf_counter()
 
-    print(f"Sorted {n} elements in {end - start}")
     return end - start
 
 
 def cpu_iter(n):
     data = bitonic_cpu.generate(n)
 
-    start = time()
+    start = time.perf_counter()
     bitonic_cpu.bitonic_sort_iter(data, n, 0)
-    end = time()
+    end = time.perf_counter()
 
-    print(f"Sorted {n} elements in {end - start}")
     return end - start
 
 
 def gpu(n):
     data_gpu = bitonic_gpu.generate(n)
 
-    start = time()
-    bitonic_gpu.bitonic_sort(data_gpu, n, 0)
-    end = time()
+    s = time.perf_counter()
+    data_gpu.copy_to_host()
+    e = time.perf_counter()
 
-    print(f"Sorted {n} elements in {end - start}")
-    return end - start
+    start = time.perf_counter()
+    bitonic_gpu.bitonic_sort(data_gpu, n, 0)
+    data_gpu.copy_to_host()
+    end = time.perf_counter()
+
+    return (end - start) - (e - s)
 
 
 # https://numba.pydata.org/numba-doc/latest/cuda/memory.html

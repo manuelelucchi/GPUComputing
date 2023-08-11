@@ -148,13 +148,28 @@ The last step is a variation of the first one, where we only have a single biton
 
 \section{Implementation}
 
-The scope of the implementation is to use Numba
+The scope of the implementation is to use Numba to measure its efficiency compared to serial python algorithms and a standard CUDA C++ version.\\
+The other versions are inspired by the course material and by the Wikipedia iterative implementation, with some changes to support a generic sorting direction (and of course, translated to python).\\
+
 
 % jit tempi compilazione funzione
 
 \subsection{Sequences of length not power of 2}
 
 \section{Benchmark and Profiling}
+
+\begin{figure}[!h]
+  %\centering
+  \includegraphics[width=400pt]{images/cpu_vs_gpu.png}
+  \caption{Time comparison between different implementations}
+\end{figure}
+
+
+\begin{figure}[!h]
+  %\centering
+  \includegraphics[width=400pt]{images/cpu_vs_gpu.png}
+  \caption{Time comparison between parallel implementations on different platforms}
+\end{figure}
 
 \begin{center}
   \begin{tabular}{ |c|c|c|c| }
@@ -179,6 +194,8 @@ The scope of the implementation is to use Numba
 \end{center}
 
 \section{Conclusion}
+
+
 
 \printbibliography
 

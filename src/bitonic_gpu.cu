@@ -3,7 +3,6 @@
 #include <time.h>
 
 #define THREADS 256
-#define BLOCKS 8 * 1024
 
 #define CHECK(call)                                                \
     {                                                              \
@@ -45,13 +44,12 @@ __global__ void bitonic_sort_step(int *a, int j, int k)
     }
 }
 
-int main(void)
+int bitonic_sort(int N)
 {
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
-    int N = THREADS * BLOCKS;
     // check
     if (!(N && !(N & (N - 1))))
     {
@@ -75,8 +73,8 @@ int main(void)
     CHECK(cudaMemcpy(d_a, a, nBytes, cudaMemcpyHostToDevice));
 
     // num of threads
-    dim3 blocks(BLOCKS, 1);   // Number of blocks
-    dim3 threads(THREADS, 1); // Number of threads
+    dim3 blocks((N + THREADS - 1) / THREADS, 1); // Number of blocks
+    dim3 threads(THREADS, 1);                    // Number of threads
 
     // start computation
     cudaEventRecord(start);
@@ -92,11 +90,19 @@ int main(void)
     cudaEventSynchronize(stop);
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
-    printf("GPU elapsed time: %.5f (sec)\n", milliseconds / 1000);
+    printf("GPU elapsed time for %d: %.5f (ms)\n", N, milliseconds);
 
     // recover data
     cudaMemcpy(a, d_a, nBytes, cudaMemcpyDeviceToHost);
 
     cudaFree(d_a);
-    exit(0);
+}
+
+int main(void)
+{
+    for (int i = 15; i < 28; i++)
+    {
+        int n = pow(2, i);
+        bitonic_sort(n);
+    }
 }
