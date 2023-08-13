@@ -13,7 +13,7 @@ y_iter = []
 y_rec = []
 y_gpu = []
 
-for e in range(8, 15):
+for e in range(8, 20):
     n = 2**e
     iter = cpu_iter(n)
     rec = cpu(n)

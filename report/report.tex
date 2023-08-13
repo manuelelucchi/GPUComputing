@@ -92,7 +92,7 @@
     \vspace{1cm}
     {\scshape\large GPU Computing Project\par}
     \vspace{4cm}
-    {\scshape\large\bfseries Bitonic Sort using Numba on Nvidia GPUs\par}
+    {\scshape\large\bfseries Bitonic Sort using Numba on NVIDIA GPUs\par}
     \vspace{4cm}
   \end{center}
 
@@ -152,11 +152,23 @@ The scope of the implementation is to use Numba to measure its efficiency compar
 The other versions are inspired by the course material and by the Wikipedia iterative implementation, with some changes to support a generic sorting direction (and of course, translated to python).\\
 
 
-% jit tempi compilazione funzione
-
 \subsection{Sequences of length not power of 2}
 
 \section{Benchmark and Profiling}
+
+\subsection{Environment}
+The benchmark and profiling environment is represented by a computer with an AMD Ryzen 7 5800H CPU (8 Cores, 16 Threads), 16 GB of RAM and an NVIDIA GeForce RTX 3050 Ti for Laptops.
+Basic specifications comprise \textbf{20 SMs} for a total of \textbf{2560 CUDA cores}, 20 RT cores and 80 Tensor cores. Clock speeds up to 1695 MHz boost at 80W, or as low as 1035 MHz for the 35W configuration, giving us quite a wide power range of 35 to 80W.
+It has 4GB of GDDR6 memory on a 128-bit bus, clocked at 12 Gbps.
+The \textbf{Compute Capability} Version is 8.6.
+
+\subsection{JIT Compilation}
+The CUDA runtime executes functions, called kernels, compiled for NVIDIA GPUs instruction set using the NVCC Compiler \cite{nvcc} and this is a different approach compared to Python, which is a \textbf{runtime interpreted language}.\\
+To solve this issue in the fastest way without changing paradigm was to compile \textbf{Just In Time} the python kernel into machine code, \textbf{caching it} and then executing it calling the CUDA Runtime Library.
+This of course comes with a delay in the first execution of a kernel (that needs to be compiled) and since the benchmarks would be cached except for the first one, the JIT compilation time has been considered separately.
+On the kernel function defined for the Bitonic Sort, the compilations on the environment takes around \textbf{0.3 seconds}, so it's noticeable if you want to compare with a sequential approach or a CUDA C version with a cold start.
+
+\subsection{Serial and Parallel approach}
 
 \begin{figure}[!h]
   %\centering
@@ -164,20 +176,31 @@ The other versions are inspired by the course material and by the Wikipedia iter
   \caption{Time comparison between different implementations}
 \end{figure}
 
+\subsection{CUDA C and Numba}
 
 \begin{figure}[!h]
   %\centering
-  \includegraphics[width=400pt]{images/cpu_vs_gpu.png}
+  \includegraphics[width=400pt]{images/cpp_vs_py.png}
   \caption{Time comparison between parallel implementations on different platforms}
 \end{figure}
 
 \begin{center}
   \begin{tabular}{ |c|c|c|c| }
     \hline
-    \textbf{Size} & \textbf{CPU Recursive} & \textbf{CPU Iterative} & \textbf{GPU} \\
+    \textbf{Size (Power of 2)} & \textbf{CPU Recursive} & \textbf{CPU Iterative} & \textbf{GPU} \\
     \hline
-    10            & 10 ms                  & 10 ms                  & 10 ms        \\
-    10            & 10 ms                  & 10 ms                  & 10 ms        \\
+    8                          & 10 ms                  & 10 ms                  & 10 ms        \\
+    9                          & 10 ms                  & 10 ms                  & 10 ms        \\
+    10                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    11                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    12                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    13                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    14                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    15                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    16                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    17                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    18                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    19                         & 10 ms                  & 10 ms                  & 10 ms        \\
     \hline
   \end{tabular}
 \end{center}
@@ -185,16 +208,91 @@ The other versions are inspired by the course material and by the Wikipedia iter
 \begin{center}
   \begin{tabular}{ |c|c|c|c| }
     \hline
-    \textbf{Size} & \textbf{Cuda C++} & \textbf{Python Numba} \\
+    \textbf{Size (Power of 2)} & \textbf{Cuda C++} & \textbf{Python Numba} \\
     \hline
-    10            & 10 ms             & 10 ms                 \\
-    10            & 10 ms             & 10 ms                 \\
+    15                         & 10 ms             & 10 ms                 \\
+    16                         & 10 ms             & 10 ms                 \\
+    17                         & 10 ms             & 10 ms                 \\
+    18                         & 10 ms             & 10 ms                 \\
+    19                         & 10 ms             & 10 ms                 \\
+    20                         & 10 ms             & 10 ms                 \\
+    21                         & 10 ms             & 10 ms                 \\
+    22                         & 10 ms             & 10 ms                 \\
+    23                         & 10 ms             & 10 ms                 \\
+    24                         & 10 ms             & 10 ms                 \\
+    25                         & 10 ms             & 10 ms                 \\
+    26                         & 10 ms             & 10 ms                 \\
+    27                         & 10 ms             & 10 ms                 \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\subsection{Profiling Results}
+
+Using the profiling tool $NCU$ on a kernel execution, we obtained the following results:\\
+
+\subsubsection{GPU Speed Of Light Throughput}
+
+\begin{center}
+  \begin{tabular}{ |c|c|c| }
+    \hline
+    Metric Name             & Metric Unit   & Metric Value \\
+    \hline
+    DRAM Frequency          & cycle/nsecond & 5,75         \\
+    SM Frequency            & cycle/nsecond & 1,17         \\
+    Elapsed Cycles          & cycle         & 2.757.034    \\
+    Memory Throughput       & \%            & 92,97        \\
+    DRAM Throughput         & \%            & 92,97        \\
+    Duration                & msecond       & 2,35         \\
+    L1/TEX Cache Throughput & \%            & 19,44        \\
+    L2 Cache Throughput     & \%            & 29,83        \\
+    SM Active Cycles        & cycle         & 2.746.869,40 \\
+    Compute (SM) Throughput & \%            & 16,16        \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\subsubsection{Launch Statistics}
+
+\begin{center}
+  \begin{tabular}{ |c|c|c| }
+    \hline
+    Metric Name                      & Metric Unit     & Metric Value    \\
+    \hline
+    Block Size                       &                 & 256             \\
+    Function Cache Configuration     &                 & CachePreferNone \\
+    Grid Size                        &                 & 131.072         \\
+    Registers Per Thread             & register/thread & 16              \\
+    Shared Memory Configuration Size & Kbyte           & 8,19            \\
+    Driver Shared Memory Per Block   & Kbyte/block     & 1,02            \\
+    Dynamic Shared Memory Per Block  & byte/block      & 0               \\
+    Static Shared Memory Per Block   & byte/block      & 0               \\
+    Threads                          & thread          & 33.554.432      \\
+    Waves Per SM                     &                 & 1.092,27        \\
+    \hline
+  \end{tabular}
+\end{center}
+
+\subsubsection{Occupancy}
+
+\begin{center}
+  \begin{tabular}{ |c|c|c| }
+    \hline
+    Metric Name                     & Metric Unit & Metric Value \\
+    \hline
+    Block Limit SM                  & block       & 16           \\
+    Block Limit Registers           & block       & 16           \\
+    Block Limit Shared Mem          & block       & 8            \\
+    Block Limit Warps               & block       & 6            \\
+    Theoretical Active Warps per SM & warp        & 48           \\
+    Theoretical Occupancy           & \%          & 100          \\
+    Achieved Occupancy              & \%          & 83,52        \\
+    Achieved Active Warps Per SM    & warp        & 40,09        \\
     \hline
   \end{tabular}
 \end{center}
 
 \section{Conclusion}
-
 
 
 \printbibliography

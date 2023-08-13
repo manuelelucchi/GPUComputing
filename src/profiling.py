@@ -3,7 +3,7 @@
 import bitonic_gpu
 import numba
 
-n = pow(2, 15)
+n = pow(2, 25)
 
 data_gpu = bitonic_gpu.generate(n)
 
