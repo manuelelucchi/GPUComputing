@@ -151,6 +151,18 @@ The last step is a variation of the first one, where we only have a single biton
 The scope of the implementation is to use Numba to measure its efficiency compared to serial python algorithms and a standard CUDA C++ version.\\
 The other versions are inspired by the course material and by the Wikipedia iterative implementation, with some changes to support a generic sorting direction (and of course, translated to python).\\
 
+The Python code consists of 3 functions
+
+\subsection{The host code}
+A function named \textit{bitonic\_sort} that accepts the initial data, its size and the direction. This function loops two indices, doubling the outer one each external iteration and halfing the inner one each internal iteration.
+This represents the $p=log_{2}n$ phases and $s=log_{2}p$ stages for each phase. Inside the two loops, the kernel function is called forwarding the data, the direction and passing the current phase and stage.
+
+\subsection{The kernel code}
+The \textit{global} code, called by the host and executed in the device decides which pair of elements to compare is represented by the function \textit{bitonic\_kernel}.\\
+It's decorated with the \textit{@cuda.jit} decorator, that signales Numba that it's a function to compile to CUDA instructions.
+
+\subsection{The device code}
+% parlare di CAS
 
 \subsection{Sequences of length not power of 2}
 
