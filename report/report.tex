@@ -160,9 +160,12 @@ This represents the $p=log_{2}n$ phases and $s=log_{2}p$ stages for each phase. 
 \subsection{The kernel code}
 The \textit{global} code, called by the host and executed in the device decides which pair of elements to compare is represented by the function \textit{bitonic\_kernel}.\\
 It's decorated with the \textit{@cuda.jit} decorator, that signales Numba that it's a function to compile to CUDA instructions.
+This function checks if the \textbf{bitwise XOR} between the phase and the stage is bigger than the current thread global index, then executes the \textit{compare\_and\_swap} function swapping the two indices compared in the previous conditions as arguments based on if the \textbf{bitwise AND} is equal to 0 or not.
 
 \subsection{The device code}
-% parlare di CAS
+The last function has the purpose of swapping the elements based on their positions and the sorting direction.\\
+More specifically, if the requested direction (represented by a $0-1$ valued integer) equals the direction of the two elements, the pair is swapped
+This function could be further improved by adding the support for the atomic operation \textbf{Compare and Swap} \cite{cas}, that could reduce Warp Divergence by swapping conditions with mathematical calculations.
 
 \subsection{Sequences of length not power of 2}
 
@@ -181,6 +184,11 @@ This of course comes with a delay in the first execution of a kernel (that needs
 On the kernel function defined for the Bitonic Sort, the compilations on the environment takes around \textbf{0.3 seconds}, so it's noticeable if you want to compare with a sequential approach or a CUDA C version with a cold start.
 
 \subsection{Serial and Parallel approach}
+
+The first benchmark is between two serial approaches and the Numba implementation, with all three being in Python.\\
+To have some meaningful data, the benchmark had multiple size of the array, starting from $n=2^8$ to $n=2^14$, doubling each time.\\
+As we can see from the following image, the Numba implementation time maintains a negligible time while both the recursive and iterative serial approaches went above the second for the last one, with the recursive being slight better.\\
+This has to be expected since the parallel version is ideally $O(log(n)^2)$ on each core, so noticeably faster than a sequential version. This is of course not completely true in reality since the GPU has not an infinite number of cores and with a further increase on the input size we'll see in the next section a rapid increase on time, but still slower than the serial version.
 
 \begin{figure}[!h]
   %\centering

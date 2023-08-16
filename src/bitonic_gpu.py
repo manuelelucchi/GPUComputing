@@ -12,12 +12,11 @@ def generate(n):
     return out_gpu
 
 
-@cuda.jit  # (nb.)
+@cuda.jit
 def bitonic_kernel(data, j, k, direction):
-    i = cuda.grid(1)
+    i = cuda.grid(1)  # Global Thread Index
     ixj = i ^ j
 
-    # USARE CAS https://numba.readthedocs.io/en/stable/cuda/intrinsics.html
     if ixj > i:
         if (i & k) == 0:
             compare_and_swap_device(data, i, ixj, direction)
