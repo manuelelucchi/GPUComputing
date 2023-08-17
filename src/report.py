@@ -50,13 +50,22 @@ y_c = [
 ]
 y_py = [gpu(2**e) * 1000 for e in x]
 
-print(y_c)
-print(y_py)
 
 plt.title("CUDA C vs Numba")
 plt.plot(x, y_c, label="CUDA C")
 plt.plot(x, y_py, label="Numba")
 plt.xlabel("Size of the input (in power of 2)")
-plt.ylabel("Time (s)")
+plt.ylabel("Time (ms)")
 plt.legend()
 plt.savefig("./report/images/cpp_vs_py.png")
+plt.close()
+
+x = list(map(lambda e: 2**e, x))
+
+plt.title("CUDA C vs Numba")
+plt.plot(x, y_c, label="CUDA C")
+plt.plot(x, y_py, label="Numba")
+plt.xlabel("Size of the input")
+plt.ylabel("Time (s)")
+plt.legend()
+plt.savefig("./report/images/cpp_vs_py_2.png")

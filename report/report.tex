@@ -198,10 +198,23 @@ This has to be expected since the parallel version is ideally $O(log(n)^2)$ on e
 
 \subsection{CUDA C and Numba}
 
+The second and last benchmark compares the Numba and Python implementation with the CUDA C one.\\
+The code is basically the same but in different languages, so the theoretical performances should be the same.
+As we can see from the image below, the CUDA C implementation, while it's faster, it is just for a constant coefficient.\\
+This means that there's an overhead, probably result of the Python runtime and the Numba abstraction layer.
+
+\begin{figure}[!h]
+  %\centering
+  \includegraphics[width=400pt]{images/cpp_vs_py_2.png}
+  \caption{Time comparison between parallel implementations on different platforms}
+\end{figure}
+
+The last figure shows the same results but making the data extrapolation easier showing the values on a power of 2 scale
+
 \begin{figure}[!h]
   %\centering
   \includegraphics[width=400pt]{images/cpp_vs_py.png}
-  \caption{Time comparison between parallel implementations on different platforms}
+  \caption{Time comparison between parallel implementations on different platforms with better value/time visualization}
 \end{figure}
 
 \begin{center}
