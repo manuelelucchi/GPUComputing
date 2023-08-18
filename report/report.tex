@@ -138,9 +138,9 @@ As we can see in picture one, at each stage of a phase the elements in the compa
 
 The last step is a variation of the first one, where we only have a single bitonic sequence and sort the two subsequences with the comparers oriented in the same direction, resulting in the sorted sequence.
 
-\begin{figure}[!h]
+\begin{figure}[H]
   \centering
-  \includegraphics[width= 400pt]{images/bitonic.png}
+  \includegraphics[width=400pt]{images/bitonic.png}
   \caption{The structure of a bitonic sorting network}
 \end{figure}
 
@@ -190,32 +190,13 @@ To have some meaningful data, the benchmark had multiple size of the array, star
 As we can see from the following image, the Numba implementation time maintains a negligible time while both the recursive and iterative serial approaches went above the second for the last one, with the recursive being slight better.\\
 This has to be expected since the parallel version is ideally $O(log(n)^2)$ on each core, so noticeably faster than a sequential version. This is of course not completely true in reality since the GPU has not an infinite number of cores and with a further increase on the input size we'll see in the next section a rapid increase on time, but still slower than the serial version.
 
-\begin{figure}[!h]
+\begin{figure}[H]
   %\centering
   \includegraphics[width=400pt]{images/cpu_vs_gpu.png}
   \caption{Time comparison between different implementations}
 \end{figure}
 
-\subsection{CUDA C and Numba}
-
-The second and last benchmark compares the Numba and Python implementation with the CUDA C one.\\
-The code is basically the same but in different languages, so the theoretical performances should be the same.
-As we can see from the image below, the CUDA C implementation, while it's faster, it is just for a constant coefficient.\\
-This means that there's an overhead, probably result of the Python runtime and the Numba abstraction layer.
-
-\begin{figure}[!h]
-  %\centering
-  \includegraphics[width=400pt]{images/cpp_vs_py_2.png}
-  \caption{Time comparison between parallel implementations on different platforms}
-\end{figure}
-
-The last figure shows the same results but making the data extrapolation easier showing the values on a power of 2 scale
-
-\begin{figure}[!h]
-  %\centering
-  \includegraphics[width=400pt]{images/cpp_vs_py.png}
-  \caption{Time comparison between parallel implementations on different platforms with better value/time visualization}
-\end{figure}
+The following table shows in details the results for each size
 
 \begin{center}
   \begin{tabular}{ |c|c|c|c| }
@@ -237,6 +218,28 @@ The last figure shows the same results but making the data extrapolation easier 
     \hline
   \end{tabular}
 \end{center}
+
+\subsection{CUDA C and Numba}
+
+The second and last benchmark compares the Numba and Python implementation with the CUDA C one.\\
+The code is basically the same but in different languages, so the theoretical performances should be the same.
+As we can see from the image below, the CUDA C implementation, while it's faster, it is just for a constant coefficient.\\
+This means that there's an overhead, probably result of the Python runtime and the Numba abstraction layer, that makes the CUDA C implementation around 3 times faster.\\
+While this seems a huge number in performances, given the fact that its constant it can be an acceptable difference in many cases when someone would prefer the faster development time that Python allows.
+
+\begin{figure}[H]
+  \includegraphics[width=400pt]{images/cpp_vs_py_2.png}
+  \caption{Time comparison between parallel implementations on different platforms}
+\end{figure}
+
+The last figure shows the same results but making the data extrapolation easier showing the values on a power of 2 scale
+
+\begin{figure}[H]
+  \includegraphics[width=400pt]{images/cpp_vs_py.png}
+  \caption{Time comparison between parallel implementations on different platforms with better value/time visualization}
+\end{figure}
+
+The last table of the section again shows the detailed results
 
 \begin{center}
   \begin{tabular}{ |c|c|c|c| }
@@ -326,7 +329,8 @@ Using the profiling tool $NCU$ on a kernel execution, we obtained the following 
 \end{center}
 
 \section{Conclusion}
-
+Based on the results of this experiments, Numba seems a worthy framework that doesn't add too much overhead to the implementation, while having some advantages like a simpler use with the Python abstraction.\\
+The difference with the C implementation is marginal and scales well and it has big improvements over the serial approach, just like one would expect from a data-indipendent algorithm.
 
 \printbibliography
 
