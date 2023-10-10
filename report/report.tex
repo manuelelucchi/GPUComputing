@@ -143,8 +143,6 @@ The last step is a variation of the first one, where we only have a single biton
   \caption{The structure of a bitonic sorting network}
 \end{figure}
 
-% versione non potenza di 2 https://hwlang.de/algorithmen/sortieren/bitonic/oddn.htm
-
 \section{Implementation}
 
 The scope of the implementation is to use Numba to measure its efficiency compared to serial python algorithms and a standard CUDA C++ version.\\
@@ -200,20 +198,20 @@ The following table shows in details the results for each size
 \begin{center}
   \begin{tabular}{ |c|c|c|c| }
     \hline
-    \textbf{Size (Power of 2)} & \textbf{CPU Recursive} & \textbf{CPU Iterative} & \textbf{GPU} \\
+    \textbf{Size (Power of 2)} & \textbf{CPU Iterative} & \textbf{CPU Recursive} & \textbf{GPU} \\
     \hline
-    8                          & 10 ms                  & 10 ms                  & 10 ms        \\
-    9                          & 10 ms                  & 10 ms                  & 10 ms        \\
-    10                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    11                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    12                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    13                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    14                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    15                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    16                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    17                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    18                         & 10 ms                  & 10 ms                  & 10 ms        \\
-    19                         & 10 ms                  & 10 ms                  & 10 ms        \\
+    8                          & 0.008 ms               & 0.007 ms               & 0.001 ms     \\
+    9                          & 0.017 ms               & 0.015 ms               & 0.002 ms     \\
+    10                         & 0.049 ms               & 0.042 ms               & 0.002 ms     \\
+    11                         & 0.104 ms               & 0.086 ms               & 0.003 ms     \\
+    12                         & 0.247 ms               & 0.200 ms               & 0.004 ms     \\
+    13                         & 0.592 ms               & 0.471 ms               & 0.004 ms     \\
+    14                         & 1.281 ms               & 1.076 ms               & 0.004 ms     \\
+    15                         & 3.007 ms               & 2.401 ms               & 0.004 ms     \\
+    16                         & 6.738 ms               & 5.577 ms               & 0.005 ms     \\
+    17                         & 15.256 ms              & 12.094 ms              & 0.005 ms     \\
+    18                         & 33.877 ms              & 26.759 ms              & 0.022 ms     \\
+    19                         & 76.762 ms              & 62.243 ms              & 0.174 ms     \\
     \hline
   \end{tabular}
 \end{center}
@@ -245,19 +243,19 @@ The last table of the section again shows the detailed results
     \hline
     \textbf{Size (Power of 2)} & \textbf{Cuda C++} & \textbf{Python Numba} \\
     \hline
-    15                         & 10 ms             & 10 ms                 \\
-    16                         & 10 ms             & 10 ms                 \\
-    17                         & 10 ms             & 10 ms                 \\
-    18                         & 10 ms             & 10 ms                 \\
-    19                         & 10 ms             & 10 ms                 \\
-    20                         & 10 ms             & 10 ms                 \\
-    21                         & 10 ms             & 10 ms                 \\
-    22                         & 10 ms             & 10 ms                 \\
-    23                         & 10 ms             & 10 ms                 \\
-    24                         & 10 ms             & 10 ms                 \\
-    25                         & 10 ms             & 10 ms                 \\
-    26                         & 10 ms             & 10 ms                 \\
-    27                         & 10 ms             & 10 ms                 \\
+    15                         & 0.98 ms           & 4.36 ms               \\
+    16                         & 1.03 ms           & 5.03 ms               \\
+    17                         & 1.47 ms           & 4.83 ms               \\
+    18                         & 1.88 ms           & 22.12 ms              \\
+    19                         & 2.81 ms           & 10 ms                 \\
+    20                         & 8.38 ms           & 10 ms                 \\
+    21                         & 16.29 ms          & 10 ms                 \\
+    22                         & 35.05 ms          & 10 ms                 \\
+    23                         & 69.36 ms          & 10 ms                 \\
+    24                         & 147.84 ms         & 10 ms                 \\
+    25                         & 320.63 ms         & 10 ms                 \\
+    26                         & 671.53 ms         & 10 ms                 \\
+    27                         & 1471.70 ms        & 10 ms                 \\
     \hline
   \end{tabular}
 \end{center}
@@ -327,10 +325,79 @@ Using the profiling tool $NCU$ on a kernel execution, we obtained the following 
   \end{tabular}
 \end{center}
 
+Using the newer profiler \textbf{Nsys}, we obtain a binary file of a proprietary format used to reprent a complex and interactive report that can be used via the Nsys GUI.\\
+Since this cannot be expressed in a document, we report the summary
+
+\subsubsection{CUDA API Summary (cuda\_api\_sum)}
+
+\begin{center}
+  \begin{adjustbox}{width=1\textwidth}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+      \hline
+      Time (\%) & Total Time (ns) & Num Calls & Avg (ns)    & Med (ns)    & Min (ns) & Max (ns)  & StdDev (ns) & Name                \\
+      \hline
+      92.0      & 753893991       & 2         & 376946995.0 & 376946995.0 & 12413    & 753881578 & 533065998.0 & cuCtxSynchronize    \\
+      6.0       & 48795888        & 1         & 48795888.0  & 48795888.0  & 48795888 & 48795888  & 0.0         & cuMemcpyHtoD\_v2    \\
+      0.0       & 4999109         & 325       & 15381.0     & 12594.0     & 8646     & 199198    & 11288.0     & cuLaunchKernel      \\
+      0,0       & 1593356         & 1         & 1593356,0   & 1593356,0   & 1593356  & 1593356   & 0,0         & cuModuleLoadDataEx  \\
+      0,0       & 1114898         & 1         & 1114898,0   & 1114898,0   & 1114898  & 1114898   & 0,0         & cuMemAlloc\_v2      \\
+      0,0       & 961316          & 1         & 961316,0    & 961316,0    & 961316   & 961316    & 0,0         & cuMemGetInfo\_v2    \\
+      0,0       & 145667          & 1         & 145667,0    & 145667,0    & 145667   & 145667    & 0,0         & cuLinkComplete      \\
+      0,0       & 74011           & 1         & 74011,0     & 74011,0     & 74011    & 74011     & 0,0         & cuLinkCreate\_v2    \\
+      0,0       & 3236            & 1         & 3236,0      & 3236,0      & 3236     & 3236      & 0,0         & cuProfilerStop      \\
+      0,0       & 2155            & 1         & 2155,0      & 2155,0      & 2155     & 2155      & 0,0         & cuLinkDestroy       \\
+      0,0       & 411             & 1         & 411,0       & 411,0       & 411      & 411       & 0,0         & cuDeviceGetUuid\_v2 \\
+      \hline
+    \end{tabular}
+  \end{adjustbox}
+\end{center}
+
+\subsubsection{CUDA GPU Kernel Summary (cuda\_gpu\_kern\_sum)}
+
+\begin{center}
+  \begin{adjustbox}{width=1\textwidth}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+      \hline
+      Time (\%) & Total Time (ns) & Instances & Avg (ns)  & Med (ns)  & Min (ns) & Max (ns) & StdDev (ns) & Name                                  \\
+      \hline
+      100,0     & 771649549       & 325       & 2374306,0 & 2277401,0 & 2201496  & 2944544  & 180394,0    & cudapy::bitonic\_gpu::bitonic\_kernel \\
+      \hline
+    \end{tabular}
+  \end{adjustbox}
+\end{center}
+
+\subsubsection{CUDA GPU MemOps Summary (by Time) (cuda\_gpu\_mem\_time\_sum)}
+
+\begin{center}
+  \begin{adjustbox}{width=1\textwidth}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+      \hline
+      Time (\%) & Total Time (ns) & Count & Avg (ns)   & Med (ns)  & Min (ns) & Max (ns) & StdDev (ns) & Operation        \\
+      \hline
+      100,0     & 40943425        & 1     & 40943425,0 & 0943425,0 & 40943425 & 40943425 & 0,0         & CUDA memcpy HtoD \\
+      \hline
+    \end{tabular}
+  \end{adjustbox}
+\end{center}
+
+\subsubsection{CUDA GPU MemOps Summary (by Size) (cuda\_gpu\_mem\_size\_sum)}
+
+\begin{center}
+  \begin{adjustbox}{width=1\textwidth}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+      \hline
+      Total (MB) & Count & Avg (MB) & Med (MB) & Min (MB) & Max (MB) & StdDev (MB) & Operation        \\
+      \hline
+      268,435    & 1     & 268,435  & 268,435  & 268,435  & 268,435  & 0,000       & CUDA memcpy HtoD \\
+      \hline
+    \end{tabular}
+  \end{adjustbox}
+\end{center}
+
 \section{Conclusion}
 Based on the results of this experiments, \textbf{Numba} seems a worthy framework that doesn't add too much overhead to the implementation, while having some advantages like a simpler use with the Python abstraction.\\
-The difference with the C implementation is marginal and scales well and it has big improvements over the serial approach, just like one would expect from a data-indipendent algorithm.
-
+It's on a different order of performances compared with a serial approach in this specific problem, completing the task in less time than the overhead to load the runtime and launch the kernel (all under 100ms), while the iterative and recursive implementations took minutes, just like one would expect from a data-indipendent algorithm.
+The difference with the C implementation is marginal and scales by a constant, a difference that should be taken under consideration for big datasets but that is balanced by the more accessibility.
 \printbibliography
 
 \end{document}

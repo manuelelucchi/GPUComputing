@@ -489,3 +489,5 @@ pyrightconfig.json
 *.exe
 *.exp
 *.lib
+
+*.sqlite

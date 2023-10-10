@@ -32,6 +32,11 @@ plt.ylabel("Time (s)")
 plt.savefig("./report/images/cpu_vs_gpu.png")
 plt.close()
 
+print("Iter vs rec vs gpu")
+print(y_iter)
+print(y_rec)
+print(y_gpu)
+
 x = list(range(15, 28))
 y_c = [
     0.98435,
@@ -49,7 +54,9 @@ y_c = [
     1471.70715,
 ]
 y_py = [gpu(2**e) * 1000 for e in x]
-
+print("C vs Python")
+print(y_c)
+print(y_py)
 
 plt.title("CUDA C vs Numba")
 plt.plot(x, y_c, label="CUDA C")
@@ -57,6 +64,7 @@ plt.plot(x, y_py, label="Numba")
 plt.xlabel("Size of the input (in power of 2)")
 plt.ylabel("Time (ms)")
 plt.legend()
+plt.grid(True)
 plt.savefig("./report/images/cpp_vs_py.png")
 plt.close()
 
@@ -68,4 +76,5 @@ plt.plot(x, y_py, label="Numba")
 plt.xlabel("Size of the input")
 plt.ylabel("Time (s)")
 plt.legend()
+plt.grid(True)
 plt.savefig("./report/images/cpp_vs_py_2.png")
