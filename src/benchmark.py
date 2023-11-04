@@ -38,9 +38,6 @@ def gpu(n):
     return (end - start) - (e - s)
 
 
-# https://numba.pydata.org/numba-doc/latest/cuda/memory.html
-
-
 def cpu_bench():
     for n in [pow(2, i) for i in range(8, 20)]:
         cpu(n)

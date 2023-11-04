@@ -28,13 +28,10 @@ def bitonic_kernel(data, j, k, direction):
 def bitonic_sort(data, n, direction):
     blocks = (n + threads - 1) // threads
     k = 2
-    while k <= n:
+    while k <= n:  # Phase
         j = k >> 1
-        while j > 0:
+        while j > 0:  # Stage
             bitonic_kernel[blocks, threads](data, j, k, direction)
             j >>= 1
         k <<= 1
     return time.perf_counter()
-
-
-# https://github.com/nschloe/perfplot
